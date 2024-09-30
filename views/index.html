@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown Note-taking App</title>
+  <!-- Include axios from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <h1>Upload File for Grammar Check</h1>
+
+  <form id="file-upload-form" enctype="multipart/form-data">
+    <label for="noteFile">Upload your file (text or PDF):</label>
+    <input type="file" id="noteFile" name="noteFile" accept=".txt, .pdf" required>
+    <button type="submit">Upload</button>
+  </form>
+
+  <h2>Grammar Check Results:</h2>
+  <pre id="results"></pre>
+
+  <script>
+    document.getElementById('file-upload-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      
+      const fileInput = document.getElementById('noteFile');
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      try {
+        // Use axios to send a POST request
+        const response = await axios.post('http://localhost:5000/api/notes/check-grammar-file', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        if (response.data.success) {
+          document.getElementById('results').textContent = JSON.stringify(response.data.grammar.matches, null, 2);
+        } else {
+          document.getElementById('results').textContent = 'Error: ' + response.data.message;
+        }
+      } catch (error) {
+        document.getElementById('results').textContent = 'Error: ' + error.message;
+      }
+    });
+  </script>
+</body>
+</html>
